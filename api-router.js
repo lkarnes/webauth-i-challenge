@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const db = require('./api-model.js');
+const restricted = require('./auth-middleware.js')
 
 router.post('/login', (req, res) => {
 const {username, password} = req.body;
@@ -28,8 +29,13 @@ router.post('/register', (req, res) => {
     .then(added => res.status(201).json(added))
 })
 
-router.get('/users', (req, res) => {
-
+router.get('/users', restricted, (req, res) => {
+    db.find().then(users => {
+        res.status(200).json(users)
+    })
+    .catch(err => {
+        res.status(500).json({message: `Internal Server Error: ${err}`})
+    })
 })
 
 module.exports = router;
